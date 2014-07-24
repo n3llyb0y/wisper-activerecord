@@ -6,24 +6,19 @@ module Wisper
 
         include Wisper::Publisher
 
-        after_create :publish_creation
-        after_update :publish_update
-        after_destroy :publish_destroy
+        after_create    :publish_create
+        after_update    :publish_update
+        after_destroy   :publish_destroy
+        after_rollback  :publish_rollback
 
       end
 
       private
 
-      def publish_creation
-        broadcast(:on_create, self)
-      end
-
-      def publish_update
-        broadcast(:on_update, self)
-      end
-
-      def publish_destroy
-        broadcast(:on_destroy, self)
+      %w(create update destroy rollback).each do |event|
+        define_method("publish_#{event}") do
+          broadcast("on_#{event}".to_sym, self)
+        end
       end
     end
   end

@@ -46,4 +46,18 @@ describe 'ActiveRecord' do
 
     end
   end
+
+  describe 'rollback' do
+    before { Meeting.create! }
+
+    it 'publishes an on_rollback event to listener' do
+      expect(listener).to receive(:on_rollback)
+      Wisper::Activerecord.subscribe(Meeting, to: listener)
+
+      meeting = Meeting.first
+      allow(meeting).to receive(:valid?).and_return(false)
+      meeting.save
+
+    end
+  end
 end
